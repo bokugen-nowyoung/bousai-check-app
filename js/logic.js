@@ -63,7 +63,7 @@ const MEASURES = [
     detail: "手回しラジオ・モバイルバッテリーを準備し、自治体の防災アプリやSNSをすぐ確認できるよう設定しておきましょう。",
     weekendLabel: "情報収集手段を整える（手回しラジオ・モバイルバッテリー購入）",
     condition: () => true,
-    score: (a) => (a.hazard_map === "not_checked" ? 10 : 6)
+    score: (a) => ((a.hazard_map || []).includes("not_checked") ? 10 : 6)
   },
   {
     id: "evac_route_check",
@@ -134,8 +134,8 @@ const MEASURES = [
     title: "ハザードマップを確認する",
     detail: "自治体のハザードマップで、地震の揺れやすさ・洪水の想定浸水深を確認しましょう。今後の対策の土台になります。",
     weekendLabel: "自治体のハザードマップを確認する",
-    condition: (a) => ["not_checked", "checked_one"].includes(a.hazard_map),
-    score: (a) => a.hazard_map === "not_checked" ? 20 : 8
+    condition: (a) => (a.hazard_map || []).includes("not_checked") || !(a.hazard_map || []).length,
+    score: (a) => (a.hazard_map || []).includes("not_checked") ? 20 : 8
   }
 ];
 
@@ -189,6 +189,7 @@ function buildSummary(a) {
     { label: "住居", value: housingLabels[a.housing] || "—" },
     { label: "家族構成", value: Object.entries(a.family || {}).filter(([,n]) => n > 0).map(([k,n]) => `${familyCountLabels[k] || k}${n}人`).join("・") || "—" },
     { label: "日中の在宅状況", value: daytimeLabels[a.daytime] || "—" },
+    { label: "ハザードマップ", value: (a.hazard_map || []).includes("not_checked") ? "未確認" : (a.hazard_map || []).length ? "確認済み" : "—" },
     { label: "災害リスク", value: floodLabels[a.flood_risk] || "—" },
     { label: "備蓄状況", value: stockLabels[a.stock] || "—" },
     { label: "非常持ち出し袋", value: goBagLabels[a.go_bag] || "—" },

@@ -40,13 +40,15 @@ const QUESTIONS = [
   },
   {
     id: "hazard_map",
-    title: "自宅周辺のハザードマップを確認したことがありますか？",
-    desc: "地震・洪水のリスクは地域によって大きく異なります。",
-    type: "single",
+    title: "ハザードマップで自宅の災害リスクを確認しましたか？",
+    desc: "国土交通省のハザードマップポータルサイトから確認できます",
+    note: true,
+    type: "multi",
     options: [
-      { value: "checked_both", label: "確認済み（地震・洪水とも）" },
-      { value: "checked_one", label: "一部だけ確認した" },
-      { value: "not_checked", label: "確認していない" }
+      { value: "flood_confirmed",     label: "✅　確認済み（洪水・浸水リスクあり）" },
+      { value: "landslide_confirmed", label: "✅　確認済み（土砂災害リスクあり）" },
+      { value: "low_risk_confirmed",  label: "✅　確認済み（リスクは低い）" },
+      { value: "not_checked",         label: "❌　確認したことがない" }
     ]
   },
   {

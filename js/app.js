@@ -129,7 +129,7 @@ function renderQuestion() {
   quizCard.innerHTML = `
     <p class="quiz-eyebrow">Q${state.step + 1}</p>
     <h2 class="quiz-title">${q.title}</h2>
-    ${q.type === "counter" ? `<p class="counter-note">${q.desc}</p>` : `<p class="quiz-desc">${q.desc}</p>`}
+    ${q.type === "counter" || q.note ? `<p class="counter-note">${q.desc}</p>` : `<p class="quiz-desc">${q.desc}</p>`}
     <div class="options-list" data-type="${q.type}">${optionsHtml}</div>
   `;
 
@@ -165,7 +165,17 @@ function handleCounterChange(q, btn) {
 function handleAnswerChange(q) {
   const inputs = quizCard.querySelectorAll(`input[name="q_${q.id}"]`);
   if (q.type === "multi") {
-    const selected = Array.from(inputs).filter(i => i.checked).map(i => i.value);
+    let selected = Array.from(inputs).filter(i => i.checked).map(i => i.value);
+    // 「確認したことがない」と他の選択肢を排他制御
+    const lastChanged = document.activeElement?.value || event?.target?.value;
+    if (selected.includes("not_checked") && selected.length > 1) {
+      if (lastChanged === "not_checked") {
+        selected = ["not_checked"];
+      } else {
+        selected = selected.filter(v => v !== "not_checked");
+      }
+      inputs.forEach(i => { i.checked = selected.includes(i.value); });
+    }
     state.answers[q.id] = selected;
   } else {
     const selected = Array.from(inputs).find(i => i.checked);
