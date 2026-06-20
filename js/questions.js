@@ -69,7 +69,7 @@ const QUESTIONS = [
     desc: "家族全員分・中身の鮮度も含めて選んでください。",
     type: "single",
     options: [
-      { value: "go_bag_full", label: "全員分あり、中身も最近見直した" },
+      { value: "go_bag_full", label: "全員分あり、中身も定期的に見直している" },
       { value: "go_bag_old", label: "あるが数年前のまま" },
       { value: "go_bag_partial", label: "一部の家族分しかない" },
       { value: "go_bag_none", label: "用意していない" }
