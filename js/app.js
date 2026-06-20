@@ -241,18 +241,34 @@ function showResults() {
   restartBtn.hidden = false;
   document.getElementById("printDate").textContent = new Date().toLocaleDateString("ja-JP");
 
+  renderScore();
   renderSummary();
   renderPriorityList();
   renderPlan();
 }
 
+function renderScore() {
+  const score = state.result.score;
+  let message, level;
+  if (score >= 90) { message = "素晴らしい！防災対策はよく整っています。定期的な見直しを続けましょう。"; level = "high"; }
+  else if (score >= 70) { message = "基本的な備えはできています。いくつかの対策でさらに安心できます。"; level = "mid"; }
+  else if (score >= 50) { message = "備えの基礎はあります。優先度の高い対策から取り組みましょう。"; level = "mid"; }
+  else if (score >= 30) { message = "備えが不十分な点があります。一つずつ対策を進めましょう。"; level = "low"; }
+  else { message = "備えがほとんどできていません。まずは基本から始めましょう。"; level = "low"; }
+
+  document.getElementById("scoreCard").innerHTML = `
+    <div class="score-card-inner level-${level}">
+      <p class="score-label">現在の防災対策スコア</p>
+      <p class="score-value"><span class="score-num">${score}</span> <span class="score-denom">/ 100</span></p>
+      <p class="score-message">${message}</p>
+    </div>
+  `;
+}
+
 function renderSummary() {
   const items = state.result.summary;
   summaryGrid.innerHTML = items.map(item => `
-    <div class="summary-item">
-      <p class="summary-label">${item.label}</p>
-      <p class="summary-value">${item.value}</p>
-    </div>
+    <li class="summary-bullet">・${item.label}：${item.value}</li>
   `).join("");
 }
 

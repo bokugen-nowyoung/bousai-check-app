@@ -90,12 +90,21 @@
     <!-- ========== RESULTS ========== -->
     <section class="screen results-screen" id="screen-results" hidden>
 
+      <div class="score-header">
+        <span class="score-icon">📋</span>
+        <h2 class="score-title">わが家の防災チェック結果</h2>
+      </div>
+
+      <div class="score-card" id="scoreCard"><!-- injected --></div>
+
       <div class="results-actions no-print">
         <button class="ghost-btn" id="printBtn" type="button">🖨 印刷 / PDF保存</button>
       </div>
 
-      <h2 class="section-title">わが家の現状</h2>
-      <div class="summary-grid" id="summaryGrid"><!-- injected --></div>
+      <div class="summary-section">
+        <h2 class="summary-section-title">📊 わが家の現状まとめ</h2>
+        <ul class="summary-list" id="summaryGrid"><!-- injected --></ul>
+      </div>
 
       <h2 class="section-title">優先して取り組むべき防災対策</h2>
       <p class="section-sub">優先度が高いものから並んでいます。クリックでチェックできます。</p>

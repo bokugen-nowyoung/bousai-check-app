@@ -379,6 +379,82 @@ main { flex: 1; }
 /* ===========================
    Results
 =========================== */
+/* Score header */
+.score-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.score-icon { font-size: 40px; display: block; margin-bottom: 6px; }
+.score-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--orange);
+  margin: 0;
+}
+
+/* Score card */
+.score-card { margin-bottom: 24px; }
+.score-card-inner {
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+  background: #fdf3ea;
+}
+.score-card-inner.level-high { background: #fdf3ea; }
+.score-card-inner.level-mid  { background: #fdf3ea; }
+.score-card-inner.level-low  { background: #fdf3ea; }
+
+.score-label {
+  font-size: 13px;
+  color: var(--gray);
+  margin: 0 0 8px;
+}
+.score-value { margin: 0 0 10px; }
+.score-num {
+  font-family: var(--font-mono);
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--gray);
+}
+.score-denom {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  color: var(--gray);
+}
+.score-message {
+  font-size: 14px;
+  color: var(--navy);
+  margin: 0;
+}
+
+/* Summary bullet list */
+.summary-section {
+  background: var(--paper);
+  border: 1px solid var(--gray-line);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+}
+.summary-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 14px;
+}
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.summary-bullet {
+  font-size: 14px;
+  color: var(--navy);
+  line-height: 1.6;
+}
+
 .results-actions {
   display: flex;
   justify-content: flex-end;

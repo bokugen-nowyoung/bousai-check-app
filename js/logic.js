@@ -150,6 +150,30 @@ const MEASURES = [
 /**
  * 診断本体。answers（id -> value or array）を受け取り、結果オブジェクトを返す。
  */
+function computeScore(a) {
+  let s = 0;
+  if (a.stock === "stock_7days") s += 25;
+  else if (a.stock === "stock_3days") s += 15;
+  else if (a.stock === "stock_little") s += 5;
+
+  if (a.go_bag === "go_bag_full") s += 20;
+  else if (a.go_bag === "go_bag_old") s += 8;
+  else if (a.go_bag === "go_bag_partial") s += 5;
+
+  if (a.hazard_map && a.hazard_map !== "not_checked") s += 15;
+
+  if (a.evacuation === "evac_walked") s += 20;
+  else if (a.evacuation === "evac_known") s += 10;
+
+  if (a.contact === "contact_set") s += 15;
+  else if (a.contact === "contact_vague") s += 5;
+
+  if (a.car === "car_ready" || a.car === "car_none") s += 5;
+  else if (a.car === "car_unready") s += 2;
+
+  return Math.min(100, s);
+}
+
 function diagnose(answers) {
   const applicable = MEASURES
     .filter(m => m.condition(answers))
@@ -158,50 +182,55 @@ function diagnose(answers) {
 
   const summary = buildSummary(answers);
   const plan = buildWeekendPlan(applicable);
+  const score = computeScore(answers);
 
-  return { summary, measures: applicable, plan };
+  return { summary, measures: applicable, plan, score };
 }
 
 function buildSummary(a) {
   const housingLabels = {
-    house: "戸建て",
-    apartment_low: "マンション・低層〜中層",
-    apartment_high: "マンション・高層",
-    rental: "賃貸住宅"
+    house: "戸建て", apartment_low: "マンション（低層〜中層）",
+    apartment_high: "マンション（高層・タワー）", rental: "賃貸（アパート・マンション）"
   };
   const familyCountLabels = { adult: "大人", infant: "乳幼児", child: "小・中学生", elderly: "高齢者", pet: "ペット" };
   const daytimeLabels = {
-    all_out: "日中は全員外出", someone_home: "日中は誰かが在宅", varies: "日中の在宅は日によって異なる"
+    all_out: "全員外出（仕事・学校）", someone_home: "ほぼ全員在宅", varies: "日によって異なる"
+  };
+  const hazardLabels = {
+    flood_confirmed: "確認済み（洪水・浸水リスクあり）",
+    landslide_confirmed: "確認済み（土砂災害リスクあり）",
+    low_risk_confirmed: "確認済み（リスクは低い）",
+    not_checked: "未確認"
   };
   const stockLabels = {
-    stock_7days: "備蓄：7日分以上", stock_3days: "備蓄：3日分程度",
-    stock_little: "備蓄：少量のみ", stock_none: "備蓄：ほぼなし"
+    stock_7days: "7日分以上", stock_3days: "3日分程度",
+    stock_little: "少量のみ", stock_none: "ほぼなし"
   };
   const goBagLabels = {
-    go_bag_full: "持ち出し袋：最新で全員分あり", go_bag_old: "持ち出し袋：あるが古い",
-    go_bag_partial: "持ち出し袋：一部のみ", go_bag_none: "持ち出し袋：未準備"
+    go_bag_full: "全員分あり・定期的に確認済み", go_bag_old: "あるが数年前のまま",
+    go_bag_partial: "一部の家族分のみ", go_bag_none: "未準備"
   };
   const evacLabels = {
-    evac_walked: "避難場所：把握＆実際に歩いた", evac_known: "避難場所：把握のみ",
-    evac_unknown: "避難場所：未把握"
+    evac_walked: "知っていて家族と共有済み", evac_known: "場所は知っているが未共有",
+    evac_unknown: "把握していない"
   };
   const contactLabels = {
-    contact_set: "連絡方法：決定済み", contact_vague: "連絡方法：あいまい", contact_none: "連絡方法：未決定"
+    contact_set: "話し合い済み（完了）", contact_vague: "なんとなく共有している", contact_none: "決めていない"
   };
   const carLabels = {
-    car_ready: "車：あり・備え済み", car_unready: "車：あり・備え不足", car_none: "車なし"
+    car_ready: "あり（ガソリン管理も済み）", car_unready: "あり（備えは不十分）", car_none: "所有していない"
   };
 
   return [
-    { label: "住居", value: housingLabels[a.housing] || "—" },
-    { label: "家族構成", value: Object.entries(a.family || {}).filter(([,n]) => n > 0).map(([k,n]) => `${familyCountLabels[k] || k}${n}人`).join("・") || "—" },
-    { label: "日中の在宅状況", value: daytimeLabels[a.daytime] || "—" },
-    { label: "ハザードマップ", value: a.hazard_map === "not_checked" ? "未確認" : a.hazard_map ? "確認済み" : "—" },
+    { label: "住まい", value: housingLabels[a.housing] || "—" },
+    { label: "家族構成", value: Object.entries(a.family || {}).filter(([,n]) => n > 0).map(([k,n]) => `${familyCountLabels[k] || k}${n}人`).join("、") || "—" },
+    { label: "平日昼間", value: daytimeLabels[a.daytime] || "—" },
+    { label: "ハザードマップ", value: hazardLabels[a.hazard_map] || "—" },
     { label: "備蓄状況", value: stockLabels[a.stock] || "—" },
     { label: "非常持ち出し袋", value: goBagLabels[a.go_bag] || "—" },
-    { label: "避難場所の把握", value: evacLabels[a.evacuation] || "—" },
-    { label: "家族の連絡方法", value: contactLabels[a.contact] || "—" },
-    { label: "車・ガソリン", value: carLabels[a.car] || "—" }
+    { label: "避難場所", value: evacLabels[a.evacuation] || "—" },
+    { label: "連絡方法", value: contactLabels[a.contact] || "—" },
+    { label: "自家用車", value: carLabels[a.car] || "—" }
   ];
 }
 
