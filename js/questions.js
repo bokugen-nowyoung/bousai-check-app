@@ -52,17 +52,6 @@ const QUESTIONS = [
     ]
   },
   {
-    id: "flood_risk",
-    title: "洪水・浸水のリスクはありますか？",
-    desc: "ハザードマップでの想定や、過去の浸水歴を踏まえて選んでください。",
-    type: "single",
-    options: [
-      { value: "high", label: "リスクが高い地域（想定浸水深が深い）" },
-      { value: "some", label: "多少リスクがある" },
-      { value: "low", label: "リスクは低い・わからない" }
-    ]
-  },
-  {
     id: "stock",
     title: "食べ物・飲み物の備蓄はどのくらいありますか？",
     desc: "1人1日あたり水3ℓが目安です。",

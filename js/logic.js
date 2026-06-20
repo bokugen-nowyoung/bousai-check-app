@@ -46,24 +46,16 @@ const MEASURES = [
     title: "洪水対策：垂直避難の準備をする",
     detail: "家の2階に最低限の備蓄を移動し、家族で「垂直避難」のシミュレーションをしておきましょう。",
     weekendLabel: "2階に最低限の備蓄を移動（垂直避難対策）",
-    condition: (a) => ["high", "some"].includes(a.flood_risk) || (a.hazard_map || []).includes("flood_confirmed"),
-    score: (a) => {
-      let s = a.flood_risk === "high" ? 26 : a.flood_risk === "some" ? 12 : 8;
-      if ((a.hazard_map || []).includes("flood_confirmed")) s += 10;
-      return s;
-    }
+    condition: (a) => (a.hazard_map || []).includes("flood_confirmed"),
+    score: () => 26
   },
   {
     id: "flood_simulation",
     title: "洪水対策：家族で避難シミュレーション",
     detail: "洪水時はどのタイミングで車を使わない判断をするか、家族で話し合っておきましょう。",
     weekendLabel: "家族で垂直避難シミュレーション（洪水想定）",
-    condition: (a) => ["high", "some"].includes(a.flood_risk) || (a.hazard_map || []).includes("flood_confirmed"),
-    score: (a) => {
-      let s = a.flood_risk === "high" ? 16 : a.flood_risk === "some" ? 8 : 6;
-      if ((a.hazard_map || []).includes("flood_confirmed")) s += 8;
-      return s;
-    }
+    condition: (a) => (a.hazard_map || []).includes("flood_confirmed"),
+    score: () => 18
   },
   {
     id: "landslide_prep",
@@ -110,7 +102,7 @@ const MEASURES = [
     title: "車を使わない判断基準を決めておく",
     detail: "洪水時や道路寸断時に車を使わない判断ができるよう、家族で基準を話し合っておきましょう。ガソリンは半分を切る前に補充する習慣も大切です。",
     weekendLabel: "洪水時に「車を使わない判断」をする基準を話し合う",
-    condition: (a) => a.car === "car_unready" && ["high", "some"].includes(a.flood_risk),
+    condition: (a) => a.car === "car_unready" && (a.hazard_map || []).includes("flood_confirmed"),
     score: () => 14
   },
   {
@@ -181,7 +173,6 @@ function buildSummary(a) {
   const daytimeLabels = {
     all_out: "日中は全員外出", someone_home: "日中は誰かが在宅", varies: "日中の在宅は日によって異なる"
   };
-  const floodLabels = { high: "洪水リスク：高い", some: "洪水リスク：多少あり", low: "洪水リスク：低い／不明" };
   const stockLabels = {
     stock_7days: "備蓄：7日分以上", stock_3days: "備蓄：3日分程度",
     stock_little: "備蓄：少量のみ", stock_none: "備蓄：ほぼなし"
@@ -206,7 +197,6 @@ function buildSummary(a) {
     { label: "家族構成", value: Object.entries(a.family || {}).filter(([,n]) => n > 0).map(([k,n]) => `${familyCountLabels[k] || k}${n}人`).join("・") || "—" },
     { label: "日中の在宅状況", value: daytimeLabels[a.daytime] || "—" },
     { label: "ハザードマップ", value: (a.hazard_map || []).includes("not_checked") ? "未確認" : (a.hazard_map || []).length ? "確認済み" : "—" },
-    { label: "災害リスク", value: floodLabels[a.flood_risk] || "—" },
     { label: "備蓄状況", value: stockLabels[a.stock] || "—" },
     { label: "非常持ち出し袋", value: goBagLabels[a.go_bag] || "—" },
     { label: "避難場所の把握", value: evacLabels[a.evacuation] || "—" },
