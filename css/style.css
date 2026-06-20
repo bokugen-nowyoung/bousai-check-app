@@ -146,6 +146,14 @@ main { flex: 1; }
   gap: 6px;
 }
 
+.step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  margin-bottom: 2px;
+}
+
 .step-num {
   font-family: var(--font-mono);
   font-weight: 700;
