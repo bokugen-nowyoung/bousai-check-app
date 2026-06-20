@@ -8,10 +8,10 @@ const QUESTIONS = [
     desc: "今お住まいの建物の種類を選んでください。",
     type: "single",
     options: [
-      { value: "house", label: "戸建て" },
-      { value: "apartment_low", label: "マンション・低層〜中層" },
-      { value: "apartment_high", label: "マンション・高層（タワー含む）" },
-      { value: "rental", label: "賃貸（アパート・マンション）" }
+      { value: "house", label: "🏠　戸建て" },
+      { value: "apartment_low", label: "🏢　マンション・低層〜中層" },
+      { value: "apartment_high", label: "🏢　マンション・高層（タワー含む）" },
+      { value: "rental", label: "🔑　賃貸（アパート・マンション）" }
     ]
   },
   {
