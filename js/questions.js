@@ -43,7 +43,7 @@ const QUESTIONS = [
     title: "ハザードマップで自宅の災害リスクを確認しましたか？",
     desc: '国土交通省の<a href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener" class="note-link">ハザードマップポータルサイト</a>から確認できます',
     note: true,
-    type: "multi",
+    type: "single",
     options: [
       { value: "flood_confirmed",     label: "✅　確認済み（洪水・浸水リスクあり）" },
       { value: "landslide_confirmed", label: "✅　確認済み（土砂災害リスクあり）" },

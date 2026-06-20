@@ -46,7 +46,7 @@ const MEASURES = [
     title: "洪水対策：垂直避難の準備をする",
     detail: "家の2階に最低限の備蓄を移動し、家族で「垂直避難」のシミュレーションをしておきましょう。",
     weekendLabel: "2階に最低限の備蓄を移動（垂直避難対策）",
-    condition: (a) => (a.hazard_map || []).includes("flood_confirmed"),
+    condition: (a) => a.hazard_map === "flood_confirmed",
     score: () => 26
   },
   {
@@ -54,7 +54,7 @@ const MEASURES = [
     title: "洪水対策：家族で避難シミュレーション",
     detail: "洪水時はどのタイミングで車を使わない判断をするか、家族で話し合っておきましょう。",
     weekendLabel: "家族で垂直避難シミュレーション（洪水想定）",
-    condition: (a) => (a.hazard_map || []).includes("flood_confirmed"),
+    condition: (a) => a.hazard_map === "flood_confirmed",
     score: () => 18
   },
   {
@@ -62,7 +62,7 @@ const MEASURES = [
     title: "土砂災害に備えた早期避難の準備をする",
     detail: "土砂災害は前兆が短く、早めの避難が命を守ります。大雨・警戒情報が出たら即座に避難できるよう、避難場所・ルート・タイミングを家族で確認しておきましょう。",
     weekendLabel: "土砂災害の避難タイミング・ルートを家族で確認",
-    condition: (a) => (a.hazard_map || []).includes("landslide_confirmed"),
+    condition: (a) => a.hazard_map === "landslide_confirmed",
     score: () => 24
   },
   {
@@ -71,7 +71,7 @@ const MEASURES = [
     detail: "手回しラジオ・モバイルバッテリーを準備し、自治体の防災アプリやSNSをすぐ確認できるよう設定しておきましょう。",
     weekendLabel: "情報収集手段を整える（手回しラジオ・モバイルバッテリー購入）",
     condition: () => true,
-    score: (a) => ((a.hazard_map || []).includes("not_checked") ? 10 : 6)
+    score: (a) => (a.hazard_map === "not_checked" ? 10 : 6)
   },
   {
     id: "evac_route_check",
@@ -102,7 +102,7 @@ const MEASURES = [
     title: "車を使わない判断基準を決めておく",
     detail: "洪水時や道路寸断時に車を使わない判断ができるよう、家族で基準を話し合っておきましょう。ガソリンは半分を切る前に補充する習慣も大切です。",
     weekendLabel: "洪水時に「車を使わない判断」をする基準を話し合う",
-    condition: (a) => a.car === "car_unready" && (a.hazard_map || []).includes("flood_confirmed"),
+    condition: (a) => a.car === "car_unready" && a.hazard_map === "flood_confirmed",
     score: () => 14
   },
   {
@@ -142,8 +142,8 @@ const MEASURES = [
     title: "ハザードマップを確認する",
     detail: "自治体のハザードマップで、地震の揺れやすさ・洪水の想定浸水深を確認しましょう。今後の対策の土台になります。",
     weekendLabel: "自治体のハザードマップを確認する",
-    condition: (a) => (a.hazard_map || []).includes("not_checked") || !(a.hazard_map || []).length,
-    score: (a) => (a.hazard_map || []).includes("not_checked") ? 20 : 8
+    condition: (a) => a.hazard_map === "not_checked" || !a.hazard_map,
+    score: (a) => a.hazard_map === "not_checked" ? 20 : 8
   }
 ];
 
@@ -196,7 +196,7 @@ function buildSummary(a) {
     { label: "住居", value: housingLabels[a.housing] || "—" },
     { label: "家族構成", value: Object.entries(a.family || {}).filter(([,n]) => n > 0).map(([k,n]) => `${familyCountLabels[k] || k}${n}人`).join("・") || "—" },
     { label: "日中の在宅状況", value: daytimeLabels[a.daytime] || "—" },
-    { label: "ハザードマップ", value: (a.hazard_map || []).includes("not_checked") ? "未確認" : (a.hazard_map || []).length ? "確認済み" : "—" },
+    { label: "ハザードマップ", value: a.hazard_map === "not_checked" ? "未確認" : a.hazard_map ? "確認済み" : "—" },
     { label: "備蓄状況", value: stockLabels[a.stock] || "—" },
     { label: "非常持ち出し袋", value: goBagLabels[a.go_bag] || "—" },
     { label: "避難場所の把握", value: evacLabels[a.evacuation] || "—" },
