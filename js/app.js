@@ -74,6 +74,7 @@ function startQuiz() {
   showScreen(screenQuiz);
   restartBtn.hidden = false;
   renderQuestion();
+  setTimeout(() => screenQuiz.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
 }
 
 function restart() {
