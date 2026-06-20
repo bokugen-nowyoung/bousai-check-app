@@ -41,7 +41,7 @@ const QUESTIONS = [
   {
     id: "hazard_map",
     title: "ハザードマップで自宅の災害リスクを確認しましたか？",
-    desc: "国土交通省のハザードマップポータルサイトから確認できます",
+    desc: '国土交通省の<a href="https://disaportal.gsi.go.jp/" target="_blank" rel="noopener" class="note-link">ハザードマップポータルサイト</a>から確認できます',
     note: true,
     type: "multi",
     options: [

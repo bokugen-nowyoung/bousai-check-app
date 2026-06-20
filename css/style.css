@@ -321,6 +321,12 @@ main { flex: 1; }
   color: #fff;
 }
 
+.note-link {
+  color: var(--green);
+  text-decoration: underline;
+}
+.note-link:hover { opacity: 0.75; }
+
 .counter-num {
   font-family: var(--font-mono);
   font-weight: 700;
