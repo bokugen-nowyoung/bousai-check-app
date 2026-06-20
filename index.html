@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>わが家の防災対策チェック</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-mark">⛯</span>
+        <span class="brand-text">わが家の防災対策チェック</span>
+      </div>
+      <button class="restart-btn" id="restartBtn" type="button" hidden>はじめから</button>
+    </div>
+  </header>
+
+  <main id="screens">
+
+    <!-- ========== INTRO ========== -->
+    <section class="screen intro-screen" id="screen-intro">
+      <div class="intro-card">
+        <p class="eyebrow">5〜10分でわかる</p>
+        <h1 class="intro-title">地震・洪水、<br>うちの備えは大丈夫？</h1>
+        <p class="intro-lede">家族構成や住まいの状況にあわせて、10個の質問に答えるだけ。今の備えを整理して、優先して取り組むべきことが見えてきます。</p>
+
+        <div class="intro-steps">
+          <div class="intro-step">
+            <span class="step-num">01</span>
+            <span class="step-label">質問に答える</span>
+          </div>
+          <div class="intro-step">
+            <span class="step-num">02</span>
+            <span class="step-label">現状を確認する</span>
+          </div>
+          <div class="intro-step">
+            <span class="step-num">03</span>
+            <span class="step-label">行動計画をもらう</span>
+          </div>
+        </div>
+
+        <button class="primary-btn" id="startBtn" type="button">はじめる</button>
+        <p class="intro-note">回答はこの端末内に保存されます。送信や登録は不要です。</p>
+      </div>
+    </section>
+
+    <!-- ========== QUESTIONS ========== -->
+    <section class="screen quiz-screen" id="screen-quiz" hidden>
+      <div class="quiz-progress-wrap">
+        <div class="quiz-progress-track">
+          <div class="quiz-progress-fill" id="progressFill"></div>
+        </div>
+        <p class="quiz-progress-label"><span id="qIndex">1</span> / <span id="qTotal">10</span></p>
+      </div>
+
+      <div class="quiz-card" id="quizCard">
+        <!-- injected by JS -->
+      </div>
+
+      <div class="quiz-nav">
+        <button class="ghost-btn" id="prevBtn" type="button">戻る</button>
+        <button class="primary-btn" id="nextBtn" type="button" disabled>次へ</button>
+      </div>
+    </section>
+
+    <!-- ========== RESULTS ========== -->
+    <section class="screen results-screen" id="screen-results" hidden>
+
+      <div class="results-actions no-print">
+        <button class="ghost-btn" id="printBtn" type="button">🖨 印刷 / PDF保存</button>
+      </div>
+
+      <h2 class="section-title">わが家の現状</h2>
+      <div class="summary-grid" id="summaryGrid"><!-- injected --></div>
+
+      <h2 class="section-title">優先して取り組むべき防災対策</h2>
+      <p class="section-sub">優先度が高いものから並んでいます。クリックでチェックできます。</p>
+      <div class="priority-list" id="priorityList"><!-- injected --></div>
+
+      <h2 class="section-title">週末ごとの行動計画</h2>
+      <p class="section-sub">1週末に1項目ずつ。チェックすると進捗バーが進みます。</p>
+
+      <div class="plan-progress-wrap no-print">
+        <div class="plan-progress-track">
+          <div class="plan-progress-fill" id="planProgressFill"></div>
+        </div>
+        <p class="plan-progress-label" id="planProgressLabel">0 / 0 完了</p>
+      </div>
+
+      <div class="plan-list" id="planList"><!-- injected --></div>
+
+      <p class="print-footer">わが家の防災対策チェック ｜ 作成日: <span id="printDate"></span></p>
+
+    </section>
+
+  </main>
+
+  <footer class="app-footer no-print">
+    <p>感情に振り回される前に、ひとつずつ。 — わが家の防災対策チェック</p>
+  </footer>
+
+</div>
+
+<script src="js/questions.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+// app.js
+// 画面遷移・状態管理・結果描画・localStorage連携
+
+const STORAGE_KEY = "bousai_check_v1";
+
+const state = {
+  step: 0,           // 現在の質問インデックス
+  answers: {},        // { questionId: value | [values] }
+  result: null,       // diagnose() の結果
+  planChecked: {}      // { measureId: true/false }
+};
+
+// ---------- DOM refs ----------
+const screenIntro = document.getElementById("screen-intro");
+const screenQuiz = document.getElementById("screen-quiz");
+const screenResults = document.getElementById("screen-results");
+const restartBtn = document.getElementById("restartBtn");
+
+const quizCard = document.getElementById("quizCard");
+const qIndexEl = document.getElementById("qIndex");
+const qTotalEl = document.getElementById("qTotal");
+const progressFill = document.getElementById("progressFill");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+const summaryGrid = document.getElementById("summaryGrid");
+const priorityList = document.getElementById("priorityList");
+const planList = document.getElementById("planList");
+const planProgressFill = document.getElementById("planProgressFill");
+const planProgressLabel = document.getElementById("planProgressLabel");
+
+// ---------- Init ----------
+function init() {
+  qTotalEl.textContent = QUESTIONS.length;
+  loadFromStorage();
+
+  document.getElementById("startBtn").addEventListener("click", startQuiz);
+  prevBtn.addEventListener("click", goPrev);
+  nextBtn.addEventListener("click", goNext);
+  restartBtn.addEventListener("click", restart);
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+  if (state.result) {
+    showResults();
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    Object.assign(state, parsed);
+  } catch (e) {
+    console.warn("storage load failed", e);
+  }
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn("storage save failed", e);
+  }
+}
+
+// ---------- Screen control ----------
+function showScreen(el) {
+  [screenIntro, screenQuiz, screenResults].forEach(s => s.hidden = (s !== el));
+}
+
+function startQuiz() {
+  state.step = state.step || 0;
+  showScreen(screenQuiz);
+  restartBtn.hidden = false;
+  renderQuestion();
+}
+
+function restart() {
+  if (!confirm("回答をリセットして、はじめからやり直しますか？")) return;
+  state.step = 0;
+  state.answers = {};
+  state.result = null;
+  state.planChecked = {};
+  saveToStorage();
+  restartBtn.hidden = true;
+  showScreen(screenIntro);
+}
+
+// ---------- Quiz rendering ----------
+function renderQuestion() {
+  const q = QUESTIONS[state.step];
+  qIndexEl.textContent = state.step + 1;
+  progressFill.style.width = `${((state.step) / QUESTIONS.length) * 100}%`;
+
+  const current = state.answers[q.id];
+
+  let optionsHtml = "";
+  q.options.forEach(opt => {
+    const isChecked = q.type === "multi"
+      ? (current || []).includes(opt.value)
+      : current === opt.value;
+    const inputType = q.type === "multi" ? "checkbox" : "radio";
+    optionsHtml += `
+      <label class="option ${isChecked ? "is-selected" : ""}">
+        <input type="${inputType}" name="q_${q.id}" value="${opt.value}" ${isChecked ? "checked" : ""}>
+        <span class="option-label">${opt.label}</span>
+      </label>
+    `;
+  });
+
+  quizCard.innerHTML = `
+    <p class="quiz-eyebrow">Q${state.step + 1}</p>
+    <h2 class="quiz-title">${q.title}</h2>
+    <p class="quiz-desc">${q.desc}</p>
+    <div class="options-list" data-type="${q.type}">${optionsHtml}</div>
+  `;
+
+  quizCard.querySelectorAll("input").forEach(input => {
+    input.addEventListener("change", () => handleAnswerChange(q));
+  });
+
+  prevBtn.disabled = state.step === 0;
+  updateNextButton(q);
+}
+
+function handleAnswerChange(q) {
+  const inputs = quizCard.querySelectorAll(`input[name="q_${q.id}"]`);
+  if (q.type === "multi") {
+    const selected = Array.from(inputs).filter(i => i.checked).map(i => i.value);
+    state.answers[q.id] = selected;
+  } else {
+    const selected = Array.from(inputs).find(i => i.checked);
+    state.answers[q.id] = selected ? selected.value : undefined;
+  }
+
+  // toggle visual state
+  quizCard.querySelectorAll(".option").forEach(label => {
+    const input = label.querySelector("input");
+    label.classList.toggle("is-selected", input.checked);
+  });
+
+  saveToStorage();
+  updateNextButton(q);
+}
+
+function updateNextButton(q) {
+  const val = state.answers[q.id];
+  const hasAnswer = q.type === "multi" ? (val && val.length > 0) : !!val;
+  // multi-select questions allow "none selected" to still proceed (e.g. no special family members)
+  const allowEmpty = q.type === "multi";
+  nextBtn.disabled = !hasAnswer && !allowEmpty;
+  nextBtn.textContent = state.step === QUESTIONS.length - 1 ? "結果を見る" : "次へ";
+}
+
+function goPrev() {
+  if (state.step === 0) return;
+  state.step -= 1;
+  saveToStorage();
+  renderQuestion();
+}
+
+function goNext() {
+  const q = QUESTIONS[state.step];
+  if (q.type === "multi" && state.answers[q.id] === undefined) {
+    state.answers[q.id] = [];
+  }
+
+  if (state.step === QUESTIONS.length - 1) {
+    finishQuiz();
+    return;
+  }
+  state.step += 1;
+  saveToStorage();
+  renderQuestion();
+}
+
+function finishQuiz() {
+  state.result = diagnose(state.answers);
+  state.planChecked = {};
+  saveToStorage();
+  showResults();
+}
+
+// ---------- Results rendering ----------
+function showResults() {
+  showScreen(screenResults);
+  restartBtn.hidden = false;
+  document.getElementById("printDate").textContent = new Date().toLocaleDateString("ja-JP");
+
+  renderSummary();
+  renderPriorityList();
+  renderPlan();
+}
+
+function renderSummary() {
+  const items = state.result.summary;
+  summaryGrid.innerHTML = items.map(item => `
+    <div class="summary-item">
+      <p class="summary-label">${item.label}</p>
+      <p class="summary-value">${item.value}</p>
+    </div>
+  `).join("");
+}
+
+function renderPriorityList() {
+  const measures = state.result.measures;
+  if (measures.length === 0) {
+    priorityList.innerHTML = `<p class="empty-note">大きな抜けは見当たりません。引き続き備蓄の鮮度などを定期的に見直しましょう。</p>`;
+    return;
+  }
+
+  priorityList.innerHTML = measures.map((m, idx) => {
+    const level = m.score >= 22 ? "high" : m.score >= 13 ? "mid" : "low";
+    const levelLabel = level === "high" ? "優先度：高" : level === "mid" ? "優先度：中" : "優先度：低";
+    return `
+      <div class="priority-item level-${level}">
+        <div class="priority-rank">${idx + 1}</div>
+        <div class="priority-body">
+          <p class="priority-tag">${levelLabel}</p>
+          <h3 class="priority-title">${m.title}</h3>
+          <p class="priority-detail">${m.detail}</p>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderPlan() {
+  const plan = state.result.plan;
+  const total = plan.length;
+  const doneCount = plan.filter(p => state.planChecked[p.id]).length;
+
+  planProgressFill.style.width = total === 0 ? "0%" : `${(doneCount / total) * 100}%`;
+  planProgressLabel.textContent = `${doneCount} / ${total} 完了`;
+
+  planList.innerHTML = plan.map(p => {
+    const checked = !!state.planChecked[p.id];
+    return `
+      <label class="plan-item ${checked ? "is-done" : ""}">
+        <input type="checkbox" data-plan-id="${p.id}" ${checked ? "checked" : ""}>
+        <span class="plan-week">第${p.order}週末</span>
+        <span class="plan-text">
+          <span class="plan-label">${p.label}</span>
+        </span>
+      </label>
+    `;
+  }).join("");
+
+  planList.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      state.planChecked[cb.dataset.planId] = cb.checked;
+      saveToStorage();
+      renderPlan();
+    });
+  });
+}
+
+init();
