@@ -46,16 +46,32 @@ const MEASURES = [
     title: "洪水対策：垂直避難の準備をする",
     detail: "家の2階に最低限の備蓄を移動し、家族で「垂直避難」のシミュレーションをしておきましょう。",
     weekendLabel: "2階に最低限の備蓄を移動（垂直避難対策）",
-    condition: (a) => ["high", "some"].includes(a.flood_risk),
-    score: (a) => a.flood_risk === "high" ? 26 : 12
+    condition: (a) => ["high", "some"].includes(a.flood_risk) || (a.hazard_map || []).includes("flood_confirmed"),
+    score: (a) => {
+      let s = a.flood_risk === "high" ? 26 : a.flood_risk === "some" ? 12 : 8;
+      if ((a.hazard_map || []).includes("flood_confirmed")) s += 10;
+      return s;
+    }
   },
   {
     id: "flood_simulation",
     title: "洪水対策：家族で避難シミュレーション",
     detail: "洪水時はどのタイミングで車を使わない判断をするか、家族で話し合っておきましょう。",
     weekendLabel: "家族で垂直避難シミュレーション（洪水想定）",
-    condition: (a) => ["high", "some"].includes(a.flood_risk),
-    score: (a) => a.flood_risk === "high" ? 16 : 8
+    condition: (a) => ["high", "some"].includes(a.flood_risk) || (a.hazard_map || []).includes("flood_confirmed"),
+    score: (a) => {
+      let s = a.flood_risk === "high" ? 16 : a.flood_risk === "some" ? 8 : 6;
+      if ((a.hazard_map || []).includes("flood_confirmed")) s += 8;
+      return s;
+    }
+  },
+  {
+    id: "landslide_prep",
+    title: "土砂災害に備えた早期避難の準備をする",
+    detail: "土砂災害は前兆が短く、早めの避難が命を守ります。大雨・警戒情報が出たら即座に避難できるよう、避難場所・ルート・タイミングを家族で確認しておきましょう。",
+    weekendLabel: "土砂災害の避難タイミング・ルートを家族で確認",
+    condition: (a) => (a.hazard_map || []).includes("landslide_confirmed"),
+    score: () => 24
   },
   {
     id: "info_tools",
