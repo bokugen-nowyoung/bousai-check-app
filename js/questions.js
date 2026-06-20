@@ -16,16 +16,15 @@ const QUESTIONS = [
   },
   {
     id: "family",
-    title: "家族構成を教えてください",
-    desc: "当てはまるものをすべて選んでください。",
-    type: "multi",
+    title: "家族の人数を教えてください",
+    desc: "0の場合はそのままでOKです。大人が1人以上いれば次へ進めます",
+    type: "counter",
     options: [
-      { value: "infant", label: "乳幼児がいる" },
-      { value: "child", label: "小中学生の子どもがいる" },
-      { value: "elderly", label: "高齢の家族がいる" },
-      { value: "pet", label: "ペットがいる" },
-      { value: "single", label: "一人暮らし" },
-      { value: "couple", label: "夫婦・パートナーと二人" }
+      { value: "adult",   label: "大人",          emoji: "🧑" },
+      { value: "infant",  label: "乳幼児",         emoji: "👶" },
+      { value: "child",   label: "小・中学生",     emoji: "🧒" },
+      { value: "elderly", label: "高齢者（65歳以上）", emoji: "👴" },
+      { value: "pet",     label: "ペット",         emoji: "🐾" }
     ]
   },
   {

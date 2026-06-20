@@ -96,31 +96,69 @@ function renderQuestion() {
   const current = state.answers[q.id];
 
   let optionsHtml = "";
-  q.options.forEach(opt => {
-    const isChecked = q.type === "multi"
-      ? (current || []).includes(opt.value)
-      : current === opt.value;
-    const inputType = q.type === "multi" ? "checkbox" : "radio";
-    optionsHtml += `
-      <label class="option ${isChecked ? "is-selected" : ""}">
-        <input type="${inputType}" name="q_${q.id}" value="${opt.value}" ${isChecked ? "checked" : ""}>
-        <span class="option-label">${opt.label}</span>
-      </label>
-    `;
-  });
+  if (q.type === "counter") {
+    const counts = current || {};
+    optionsHtml = q.options.map(opt => {
+      const val = counts[opt.value] || 0;
+      return `
+        <div class="counter-row" data-value="${opt.value}">
+          <span class="counter-label"><span class="counter-emoji">${opt.emoji}</span>${opt.label}</span>
+          <div class="counter-controls">
+            <button type="button" class="counter-btn counter-minus" data-value="${opt.value}" ${val === 0 ? "disabled" : ""}>−</button>
+            <span class="counter-num">${val}</span>
+            <button type="button" class="counter-btn counter-plus" data-value="${opt.value}">＋</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  } else {
+    q.options.forEach(opt => {
+      const isChecked = q.type === "multi"
+        ? (current || []).includes(opt.value)
+        : current === opt.value;
+      const inputType = q.type === "multi" ? "checkbox" : "radio";
+      optionsHtml += `
+        <label class="option ${isChecked ? "is-selected" : ""}">
+          <input type="${inputType}" name="q_${q.id}" value="${opt.value}" ${isChecked ? "checked" : ""}>
+          <span class="option-label">${opt.label}</span>
+        </label>
+      `;
+    });
+  }
 
   quizCard.innerHTML = `
     <p class="quiz-eyebrow">Q${state.step + 1}</p>
     <h2 class="quiz-title">${q.title}</h2>
-    <p class="quiz-desc">${q.desc}</p>
+    ${q.type === "counter" ? `<p class="counter-note">${q.desc}</p>` : `<p class="quiz-desc">${q.desc}</p>`}
     <div class="options-list" data-type="${q.type}">${optionsHtml}</div>
   `;
 
-  quizCard.querySelectorAll("input").forEach(input => {
-    input.addEventListener("change", () => handleAnswerChange(q));
-  });
+  if (q.type === "counter") {
+    quizCard.querySelectorAll(".counter-btn").forEach(btn => {
+      btn.addEventListener("click", () => handleCounterChange(q, btn));
+    });
+  } else {
+    quizCard.querySelectorAll("input").forEach(input => {
+      input.addEventListener("change", () => handleAnswerChange(q));
+    });
+  }
 
   prevBtn.disabled = state.step === 0;
+  updateNextButton(q);
+}
+
+function handleCounterChange(q, btn) {
+  const key = btn.dataset.value;
+  const counts = state.answers[q.id] || {};
+  const isPlus = btn.classList.contains("counter-plus");
+  counts[key] = Math.max(0, (counts[key] || 0) + (isPlus ? 1 : -1));
+  state.answers[q.id] = counts;
+
+  const row = btn.closest(".counter-row");
+  row.querySelector(".counter-num").textContent = counts[key];
+  row.querySelector(".counter-minus").disabled = counts[key] === 0;
+
+  saveToStorage();
   updateNextButton(q);
 }
 
@@ -146,10 +184,15 @@ function handleAnswerChange(q) {
 
 function updateNextButton(q) {
   const val = state.answers[q.id];
-  const hasAnswer = q.type === "multi" ? (val && val.length > 0) : !!val;
-  // multi-select questions allow "none selected" to still proceed (e.g. no special family members)
-  const allowEmpty = q.type === "multi";
-  nextBtn.disabled = !hasAnswer && !allowEmpty;
+  let enabled;
+  if (q.type === "counter") {
+    enabled = (val?.adult || 0) >= 1;
+  } else if (q.type === "multi") {
+    enabled = true;
+  } else {
+    enabled = !!val;
+  }
+  nextBtn.disabled = !enabled;
   nextBtn.textContent = state.step === QUESTIONS.length - 1 ? "結果を見る" : "次へ";
 }
 
@@ -162,8 +205,8 @@ function goPrev() {
 
 function goNext() {
   const q = QUESTIONS[state.step];
-  if (q.type === "multi" && state.answers[q.id] === undefined) {
-    state.answers[q.id] = [];
+  if ((q.type === "multi" || q.type === "counter") && state.answers[q.id] === undefined) {
+    state.answers[q.id] = q.type === "counter" ? {} : [];
   }
 
   if (state.step === QUESTIONS.length - 1) {

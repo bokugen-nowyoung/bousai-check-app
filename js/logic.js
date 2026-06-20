@@ -37,7 +37,7 @@ const MEASURES = [
     title: "子ども用の非常持ち出し袋を用意する",
     detail: "軽量で持ちやすいもの、防寒着、お菓子、安心できるおもちゃなどを入れておきましょう。",
     weekendLabel: "子ども用の非常持ち出し袋を新しく準備",
-    condition: (a) => (a.family || []).some(v => ["infant", "child"].includes(v)) &&
+    condition: (a) => ((a.family?.infant || 0) > 0 || (a.family?.child || 0) > 0) &&
                        ["go_bag_partial", "go_bag_none", "go_bag_old"].includes(a.go_bag),
     score: () => 18
   },
@@ -78,7 +78,7 @@ const MEASURES = [
     title: "学校・園から自宅までの迎えルートを確保する",
     detail: "日中に子どもだけになる可能性がある場合、誰が・どのルートで迎えに行くか決めておきましょう。",
     weekendLabel: "学校〜自宅の迎えルートを確認",
-    condition: (a) => (a.family || []).includes("child") && a.daytime !== "someone_home",
+    condition: (a) => (a.family?.child || 0) > 0 && a.daytime !== "someone_home",
     score: () => 16
   },
   {
@@ -118,7 +118,7 @@ const MEASURES = [
     title: "高齢の家族の避難方法を具体化する",
     detail: "持病の薬・補助具・避難時の移動手段など、個別の配慮が必要な点を整理しておきましょう。",
     weekendLabel: "高齢の家族の避難方法・必要な薬や物資を確認",
-    condition: (a) => (a.family || []).includes("elderly"),
+    condition: (a) => (a.family?.elderly || 0) > 0,
     score: () => 20
   },
   {
@@ -126,7 +126,7 @@ const MEASURES = [
     title: "ペット用の備蓄・避難方法を準備する",
     detail: "ペット用の水・フード・キャリーバッグ、避難所でのペット可否を事前に確認しておきましょう。",
     weekendLabel: "ペット用の備蓄品・避難方法を確認",
-    condition: (a) => (a.family || []).includes("pet"),
+    condition: (a) => (a.family?.pet || 0) > 0,
     score: () => 14
   },
   {
@@ -161,10 +161,7 @@ function buildSummary(a) {
     apartment_high: "マンション・高層",
     rental: "賃貸住宅"
   };
-  const familyLabels = {
-    infant: "乳幼児あり", child: "小中学生の子どもあり", elderly: "高齢の家族あり",
-    pet: "ペットあり", single: "一人暮らし", couple: "夫婦・パートナー"
-  };
+  const familyCountLabels = { adult: "大人", infant: "乳幼児", child: "小・中学生", elderly: "高齢者", pet: "ペット" };
   const daytimeLabels = {
     all_out: "日中は全員外出", someone_home: "日中は誰かが在宅", varies: "日中の在宅は日によって異なる"
   };
@@ -190,7 +187,7 @@ function buildSummary(a) {
 
   return [
     { label: "住居", value: housingLabels[a.housing] || "—" },
-    { label: "家族構成", value: (a.family || []).map(v => familyLabels[v]).join("・") || "—" },
+    { label: "家族構成", value: Object.entries(a.family || {}).filter(([,n]) => n > 0).map(([k,n]) => `${familyCountLabels[k] || k}${n}人`).join("・") || "—" },
     { label: "日中の在宅状況", value: daytimeLabels[a.daytime] || "—" },
     { label: "災害リスク", value: floodLabels[a.flood_risk] || "—" },
     { label: "備蓄状況", value: stockLabels[a.stock] || "—" },

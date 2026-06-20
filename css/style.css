@@ -261,6 +261,75 @@ main { flex: 1; }
   gap: 10px;
 }
 
+/* Counter type */
+.counter-note {
+  background: var(--cream);
+  border: 1px solid var(--gray-line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--gray);
+  margin-bottom: 20px;
+}
+
+.counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--gray-line);
+}
+.counter-row:last-child { border-bottom: none; }
+
+.counter-label {
+  font-size: 15px;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.counter-emoji { font-size: 20px; }
+
+.counter-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.counter-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--orange);
+  background: transparent;
+  color: var(--orange);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.counter-btn:disabled {
+  border-color: var(--gray-line);
+  color: var(--gray-line);
+  cursor: default;
+}
+.counter-btn:not(:disabled):hover {
+  background: var(--orange);
+  color: #fff;
+}
+
+.counter-num {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--navy);
+  min-width: 24px;
+  text-align: center;
+}
+
 .option {
   display: flex;
   align-items: center;
