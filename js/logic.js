@@ -103,7 +103,7 @@ const MEASURES = [
     detail: "転倒防止金具やストッパーを設置しましょう。特に寝室・子ども部屋は優先して対応を。",
     weekendLabel: "家具の固定（転倒防止金具やストッパーを設置）",
     condition: () => true,
-    score: (a) => (a.housing && a.housing.includes("old")) ? 18 : 10
+    score: (a) => a.housing === "house" ? 16 : 10
   },
   {
     id: "glass_film",
@@ -156,8 +156,7 @@ function diagnose(answers) {
 
 function buildSummary(a) {
   const housingLabels = {
-    house_old: "戸建て（旧耐震・築古）",
-    house_new: "戸建て（新耐震・築浅）",
+    house: "戸建て",
     apartment_low: "マンション・低層〜中層",
     apartment_high: "マンション・高層",
     rental: "賃貸住宅"

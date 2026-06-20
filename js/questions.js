@@ -8,8 +8,7 @@ const QUESTIONS = [
     desc: "今お住まいの建物の種類を選んでください。",
     type: "single",
     options: [
-      { value: "house_old", label: "戸建て（旧耐震・築古）" },
-      { value: "house_new", label: "戸建て（新耐震・築浅）" },
+      { value: "house", label: "戸建て" },
       { value: "apartment_low", label: "マンション・低層〜中層" },
       { value: "apartment_high", label: "マンション・高層（タワー含む）" },
       { value: "rental", label: "賃貸（アパート・マンション）" }
